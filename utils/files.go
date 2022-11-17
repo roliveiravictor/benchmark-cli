@@ -4,7 +4,7 @@ import "os"
 
 func Open(name string) *os.File {
 	jsonFile, err := os.Open(name)
-	nilCheck(err, "Failed to open json file.")
+	stringNilCheck(err, "Failed to open json file.")
 	return jsonFile
 }
 

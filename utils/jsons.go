@@ -8,11 +8,11 @@ import (
 
 func Read(file *os.File) []byte {
 	data, err := ioutil.ReadAll(file)
-	nilCheck(err, "Failed to read Macrobenchmark file.")
+	stringNilCheck(err, "Failed to read Macrobenchmark file.")
 	return data
 }
 
 func Parse[T any](bytes []byte, model *T) {
 	err := json.Unmarshal(bytes, model)
-	nilCheck(err, "Failed to parse Macrobenchmark json.")
+	stringNilCheck(err, "Failed to parse Macrobenchmark json.")
 }
