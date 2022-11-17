@@ -1,11 +1,21 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 )
 
-func nilCheck(err error, message string) {
+func stringNilCheck(err error, message string) {
 	if err != nil {
-		fmt.Errorf(message)
+		exception := fmt.Errorf(message)
+		if exception != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func byteNilCheck(err error, buffer bytes.Buffer) {
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + buffer.String())
 	}
 }
