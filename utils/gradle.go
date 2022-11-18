@@ -6,7 +6,7 @@ import (
 )
 
 func GradleStop() {
-	dir := Home() + "/StudioProjects/fury_startup-initializer-android/"
+	dir := Home() + "/StudioProjects/fury_mercadolibre-android/"
 	gradle := "./gradlew"
 	arg0 := "--stop"
 	Cmd(dir, gradle, arg0)
@@ -27,7 +27,7 @@ func GradleRun() {
 	dir := Home() + "/StudioProjects/play-store-buy-me-a-coffee/"
 	gradle := "./gradlew"
 	arg0 := "clean"
-	arg1 := ":app:assemble"
+	arg1 := ":benchmark:connectedAndroidTest"
 	arg2 := "-Dorg.gradle.java.home=" + os.Getenv("SDKMAN_CANDIDATES_DIR") + "/java/" + link
 	Cmd(dir, gradle, arg0, arg1, arg2)
 }
