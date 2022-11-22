@@ -9,9 +9,21 @@ import (
 )
 
 func main() {
-	var rootFlag = flag.String("path", utils.Home()+"/StudioProjects/play-store-buy-me-a-coffee", "Macrobenchmark root directory")
-	var originFlag = flag.String("origin", "master", "Origin branch to be benchmarked")
-	var headFlag = flag.String("head", "fix/fb-verify-dynamic-link", "Head branch to be benchmarked")
+	var rootFlag = flag.String(
+		"path",
+		utils.Home()+"/StudioProjects/play-store-buy-me-a-coffee",
+		"Macrobenchmark root directory",
+	)
+	var originFlag = flag.String(
+		"origin",
+		"master",
+		"Origin branch to be benchmarked",
+	)
+	var headFlag = flag.String(
+		"head",
+		"fix/fb-verify-dynamic-link",
+		"Head branch to be benchmarked",
+	)
 
 	tests := "/benchmark/build/outputs/connected_android_test_additional_output/benchmark/connected"
 
