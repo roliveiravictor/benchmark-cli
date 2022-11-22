@@ -3,19 +3,23 @@ package main
 import (
 	"benchmark-cli/model"
 	"benchmark-cli/utils"
+	"flag"
 	"fmt"
 	"os"
 )
 
 func main() {
-	project := utils.Home() + "/StudioProjects/play-store-buy-me-a-coffee"
+	var rootFlag = flag.String("path", utils.Home()+"/StudioProjects/play-store-buy-me-a-coffee", "Macrobenchmark root directory")
+	var originFlag = flag.String("origin", "master", "Origin branch to be benchmarked")
+	var headFlag = flag.String("head", "fix/fb-verify-dynamic-link", "Head branch to be benchmarked")
+
 	tests := "/benchmark/build/outputs/connected_android_test_additional_output/benchmark/connected"
 
-	utils.Checkout(project, "master")
-	utils.GradleStop(project)
-	utils.GradleRun(project)
+	utils.Checkout(*rootFlag, *originFlag)
+	utils.GradleStop(*rootFlag)
+	utils.GradleRun(*rootFlag)
 
-	path := project + tests
+	path := *rootFlag + tests
 
 	buffer := make(map[string]os.DirEntry)
 
@@ -28,9 +32,9 @@ func main() {
 		loadModel(file.Name(), &originBenchmark)
 	}
 
-	utils.Checkout(project, "fix/fb-verify-dynamic-link)")
-	utils.GradleStop(project)
-	utils.GradleRun(project)
+	utils.Checkout(*rootFlag, *headFlag)
+	utils.GradleStop(*rootFlag)
+	utils.GradleRun(*rootFlag)
 
 	headBenchmark := model.Macrobenchmark{}
 
