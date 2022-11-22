@@ -3,86 +3,80 @@ package main
 import (
 	"benchmark-cli/model"
 	"benchmark-cli/utils"
-	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
+// adb uninstall <package_name>
+
 func main() {
-	var rootFlag = flag.String(
-		"path",
-		utils.Home()+"/StudioProjects/play-store-buy-me-a-coffee",
-		"Macrobenchmark root directory",
-	)
-	var originFlag = flag.String(
-		"origin",
-		"master",
-		"Origin branch to be benchmarked",
-	)
-	var headFlag = flag.String(
-		"head",
-		"fix/fb-verify-dynamic-link",
-		"Head branch to be benchmarked",
-	)
-
-	tests := "/benchmark/build/outputs/connected_android_test_additional_output/benchmark/connected"
-
-	utils.Checkout(*rootFlag, *originFlag)
-	utils.GradleStop(*rootFlag)
-	utils.GradleRun(*rootFlag)
-
-	path := *rootFlag + tests
-
 	buffer := make(map[string]os.DirEntry)
-
-	fileName := "benchmarkData"
 	originBenchmark := model.Macrobenchmark{}
-
-	originBenchmarks := utils.Find(fileName, path, buffer)
-	for key, element := range originBenchmarks {
-		file := utils.Open(path + "/" + key + "/" + element.Name())
-		loadModel(file.Name(), &originBenchmark)
-	}
-
-	utils.Checkout(*rootFlag, *headFlag)
-	utils.GradleStop(*rootFlag)
-	utils.GradleRun(*rootFlag)
-
 	headBenchmark := model.Macrobenchmark{}
 
-	headBenchmarks := utils.Find(fileName, path, buffer)
-	for key, element := range headBenchmarks {
-		file := utils.Open(path + "/" + key + "/" + element.Name())
-		loadModel(file.Name(), &headBenchmark)
-	}
+	utils.Checkout(model.Root, *model.Origin)
+	utils.GradleStop(model.Root)
+	utils.GradleConnectedAndroidTest(model.Root, model.Module)
 
-	for _, data := range originBenchmark.Benchmarks {
-		fmt.Println("Median master is ", data.Metrics.TTID.Median)
-		fmt.Println(" ")
-	}
+	loadBenchmark(buffer, &originBenchmark)
 
-	for _, data := range headBenchmark.Benchmarks {
-		fmt.Println("Median release is ", data.Metrics.TTID.Median)
-		fmt.Println(" ")
-	}
+	utils.Checkout(model.Root, *model.Head)
+	utils.GradleStop(model.Root)
+	utils.GradleConnectedAndroidTest(model.Root, model.Module)
 
+	loadBenchmark(buffer, &headBenchmark)
+
+	printBenchmarkMedian(*model.Origin, &originBenchmark)
+	printBenchmarkMedian(*model.Head, &headBenchmark)
+	evaluateBenchmarks(&originBenchmark, &headBenchmark)
+}
+
+func evaluateBenchmarks(
+	originBenchmark *model.Macrobenchmark,
+	headBenchmark *model.Macrobenchmark,
+) {
 	for index, origin := range originBenchmark.Benchmarks {
 		head := headBenchmark.Benchmarks[index]
 		if origin.Name == head.Name {
 			median, _ := origin.Metrics.TTID.Median.Float64()
 			medianV2, _ := head.Metrics.TTID.Median.Float64()
 			delta := (1 - median/medianV2) * 100
-			fmt.Printf("Benchmark %s median delta is %.2f%%", origin.Name, delta)
+			fmt.Println(" ")
+			fmt.Printf("%s median delta is %.2f%%", origin.Name, delta)
 			fmt.Println(" ")
 		}
+	}
+}
+
+func printBenchmarkMedian(branch string, benchmark *model.Macrobenchmark) {
+	for _, data := range benchmark.Benchmarks {
+		fmt.Println(" ")
+		fmt.Printf("Median %s is %s", branch, data.Metrics.TTID.Median.String())
+		fmt.Println(" ")
+	}
+}
+
+func loadBenchmark(
+	buffer map[string]os.DirEntry,
+	benchmark *model.Macrobenchmark,
+) {
+	path := filepath.Join(
+		model.Root,
+		model.Module,
+		model.JSON_PATH,
+	)
+	originBenchmarks := utils.Find(model.JSON_NAME, path, buffer)
+	for key, element := range originBenchmarks {
+		joined := filepath.Join(path, key, element.Name())
+		file := utils.Open(joined)
+		loadModel(file.Name(), benchmark)
 	}
 }
 
 func loadModel(name string, benchmark *model.Macrobenchmark) {
 	macro := utils.Open(name)
 	json := utils.Read(macro)
-
 	utils.Parse(json, &benchmark)
-
 	utils.Close(macro)
 }

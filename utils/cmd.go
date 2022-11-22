@@ -20,7 +20,6 @@ func Cmd(dir string, name string, arg ...string) {
 		cmd.Dir = dir
 	}
 
-	//cmd.Stdout = &log
 	cmd.Stderr = &cmdErr
 	cmd.Stdout = onTheFlyWriter
 
