@@ -8,28 +8,31 @@ import (
 	"path/filepath"
 )
 
-// adb uninstall <package_name>
+// Adjust uninstall app id
 
 func main() {
 	buffer := make(map[string]os.DirEntry)
 	originBenchmark := model.Macrobenchmark{}
 	headBenchmark := model.Macrobenchmark{}
 
-	utils.Checkout(model.Root, *model.Origin)
-	utils.GradleStop(model.Root)
-	utils.GradleConnectedAndroidTest(model.Root, model.Module)
-
-	loadBenchmark(buffer, &originBenchmark)
-
-	utils.Checkout(model.Root, *model.Head)
-	utils.GradleStop(model.Root)
-	utils.GradleConnectedAndroidTest(model.Root, model.Module)
-
-	loadBenchmark(buffer, &headBenchmark)
+	collectBenchmark(buffer, *model.Origin, &originBenchmark)
+	collectBenchmark(buffer, *model.Head, &headBenchmark)
 
 	printBenchmarkMedian(*model.Origin, &originBenchmark)
 	printBenchmarkMedian(*model.Head, &headBenchmark)
 	evaluateBenchmarks(&originBenchmark, &headBenchmark)
+}
+
+func collectBenchmark(
+	buffer map[string]os.DirEntry,
+	branch string,
+	benchmark *model.Macrobenchmark,
+) {
+	utils.Uninstall(model.Root, "com.stonetree.coffee.playground")
+	utils.Checkout(model.Root, branch)
+	utils.GradleStop(model.Root)
+	utils.GradleConnectedAndroidTest(model.Root, model.Module)
+	loadBenchmark(buffer, benchmark)
 }
 
 func evaluateBenchmarks(
