@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -20,13 +19,10 @@ func Cmd(dir string, name string, arg ...string) {
 		cmd.Dir = dir
 	}
 
-	//cmd.Stdout = &log
 	cmd.Stderr = &cmdErr
 	cmd.Stdout = onTheFlyWriter
 
 	err := cmd.Run()
 
 	byteNilCheck(err, cmdErr)
-
-	fmt.Println(log.String())
 }

@@ -1,6 +1,6 @@
 package model
 
-type Benchmark struct {
+type Suites struct {
 	Name    string  `json:"name"`
 	Metrics Metrics `json:"metrics"`
 }
